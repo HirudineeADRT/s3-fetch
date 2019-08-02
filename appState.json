@@ -23,7 +23,7 @@
         "children": [],
         "isRemovable": true,
         "filePath": "fetch-file-and-store-in-s3/handler.js",
-        "code": "'use strict';\n\nconst fetch = require('node-fetch');\nconst AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies\n\nconst s3 = new AWS.S3();\n\nmodule.exports.save = (event, context, callback) => {\n  fetch(event.image_url)\n    .then((response) => {\n      if (response.ok) {\n        return response;\n      }\n      return Promise.reject(new Error(\n        `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));\n    })\n    .then(response => response.buffer())\n    .then(buffer => (\n      s3.putObject({\n        \"Body\": buffer,\n        \"Bucket\": \"indunil1\",\n        \"Key\": event.key\n      }).promise()\n    ))\n    .then(v => callback(null, v), callback);\n};\n",
+        "code": "'use strict';\n\nconst fetch = require('node-fetch');\nconst AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies\n\nconst s3 = new AWS.S3();\n\nmodule.exports.save = (event, context, callback) => {\n  fetch(event.image_url)\n    .then((response) => {\n      if (response.ok) {\n        return response;\n      }\n      return Promise.reject(new Error(\n        `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));\n    })\n    .then(response => response.buffer())\n    .then((buffer) =>{\n      var image = document.createElement('img');\n    })\n    .then(buffer => (\n      \n      s3.putObject({\n        \"Body\": buffer,\n        \"Bucket\": \"indunil1\",\n        \"Key\": event.key\n      }).promise()\n    ))\n    .then(v => callback(null, v), callback);\n};\n",
         "config": {
           "runtime": "nodejs8.10",
           "handler": "save",
@@ -31,7 +31,12 @@
           "memory": 128,
           "layers": []
         },
-        "triggers": [],
+        "triggers": [
+          {
+            "resourceName": "apigusWest1HiruTesttestpathpost",
+            "config": {}
+          }
+        ],
         "customSecurityPolicy": {
           "Statement": [
             {
@@ -49,7 +54,7 @@
             "id": "5d2089bf-66e6-4c3a-ac3c-651f7ff08484",
             "name": "Test event",
             "functionId": "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3",
-            "event": "{\r\n    \"image_url\": \"https://dog.ceo/api/breeds/image/random\",\r\n    \"key\":\"001\"\r\n}",
+            "event": "{\r\n    \"image_url\": \"https://dog.ceo/api/breeds/image/random\",\r\n    \"key\": \"001\"\r\n}",
             "eventTemplate": "hello-world"
           }
         }
@@ -127,6 +132,44 @@
             "name": "indunil1"
           }
         }
+      },
+      "apigusWest1HiruTesttestpathget": {
+        "name": "apigusWest1HiruTesttestpathget",
+        "type": "API_GATEWAY",
+        "config": {
+          "selectedRegion": "us-west-1",
+          "apiMode": 0,
+          "apiName": "HiruTest",
+          "endpointType": "EDGE",
+          "resourceMode": 0,
+          "resourceName": "test/path",
+          "resourcePath": "/test/path",
+          "restMethod": "GET",
+          "proxyIntegration": false,
+          "enableCORS": false,
+          "stageMode": 0,
+          "stageName": "Test",
+          "mode": 0
+        }
+      },
+      "apigusWest1HiruTesttestpathpost": {
+        "name": "apigusWest1HiruTesttestpathpost",
+        "type": "API_GATEWAY",
+        "config": {
+          "selectedRegion": "us-west-1",
+          "apiMode": 0,
+          "apiName": "HiruTest",
+          "endpointType": "EDGE",
+          "resourceMode": 0,
+          "resourceName": "test/path",
+          "resourcePath": "/test/path",
+          "restMethod": "POST",
+          "proxyIntegration": false,
+          "enableCORS": false,
+          "stageMode": 0,
+          "stageName": "Test",
+          "mode": 0
+        }
       }
     },
     "customTemplate": {
@@ -173,14 +216,19 @@
     "projectRegion": "us-west-1",
     "platform": "AWS",
     "platformRegions": {},
-    "lastSave": 1564732312559
+    "lastSave": 1564737094006
   },
   "VCS_STATE": {
     "provider": "GitHub",
     "repo": {
-      "name": "examples",
+      "name": "s3-fetch",
       "url": "https://github.com/HirudineeADRT/s3-fetch",
-      "branches": []
+      "branches": [
+        {
+          "name": "master",
+          "hash": "c4d8417a1f9d56dcdcf511865bf3b2f589026602"
+        }
+      ]
     }
   }
 }

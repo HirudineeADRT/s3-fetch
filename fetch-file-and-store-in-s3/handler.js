@@ -15,7 +15,11 @@ module.exports.save = (event, context, callback) => {
         `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));
     })
     .then(response => response.buffer())
+    .then((buffer) =>{
+      var image = document.createElement('img');
+    })
     .then(buffer => (
+      
       s3.putObject({
         "Body": buffer,
         "Bucket": "indunil1",
