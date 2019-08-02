@@ -1,0 +1,186 @@
+{
+  "EDITOR_STATE": {
+    "allProjectFiles": {
+      "3e79b295-84c6-4991-9494-2f560231b2f9": {
+        "id": "3e79b295-84c6-4991-9494-2f560231b2f9",
+        "parent": null,
+        "name": "fetch-file-and-store-in-s3",
+        "type": "DIRECTORY",
+        "isDirectory": true,
+        "children": [
+          "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3",
+          "f917b1c4-d4fb-47b1-a877-702b38691549"
+        ],
+        "isRemovable": false,
+        "filePath": "fetch-file-and-store-in-s3"
+      },
+      "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3": {
+        "id": "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3",
+        "parent": "3e79b295-84c6-4991-9494-2f560231b2f9",
+        "name": "handler.js",
+        "type": "JS_LAMBDA",
+        "isDirectory": false,
+        "children": [],
+        "isRemovable": true,
+        "filePath": "fetch-file-and-store-in-s3/handler.js",
+        "code": "'use strict';\n\nconst fetch = require('node-fetch');\nconst AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies\n\nconst s3 = new AWS.S3();\n\nmodule.exports.save = (event, context, callback) => {\n  fetch(event.image_url)\n    .then((response) => {\n      if (response.ok) {\n        return response;\n      }\n      return Promise.reject(new Error(\n        `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));\n    })\n    .then(response => response.buffer())\n    .then(buffer => (\n      s3.putObject({\n        \"Body\": buffer,\n        \"Bucket\": \"indunil1\",\n        \"Key\": event.key\n      }).promise()\n    ))\n    .then(v => callback(null, v), callback);\n};\n",
+        "config": {
+          "runtime": "nodejs8.10",
+          "handler": "save",
+          "timeout": 60,
+          "memory": 128,
+          "layers": []
+        },
+        "triggers": [],
+        "customSecurityPolicy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject",
+                "s3:PutObjectAcl"
+              ],
+              "Resource": "arn:aws:s3:::${self:custom.bucket}/*"
+            }
+          ]
+        },
+        "testCases": {
+          "5d2089bf-66e6-4c3a-ac3c-651f7ff08484": {
+            "id": "5d2089bf-66e6-4c3a-ac3c-651f7ff08484",
+            "name": "Test event",
+            "functionId": "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3",
+            "event": "{\r\n    \"image_url\": \"https://dog.ceo/api/breeds/image/random\",\r\n    \"key\":\"001\"\r\n}",
+            "eventTemplate": "hello-world"
+          }
+        }
+      },
+      "62e23c61-5fc1-4c80-89ad-d38dc6cc75cd": {
+        "id": "62e23c61-5fc1-4c80-89ad-d38dc6cc75cd",
+        "parent": null,
+        "name": "serverless.yml",
+        "type": "YAML_FILE",
+        "isDirectory": false,
+        "children": [],
+        "isRemovable": true,
+        "filePath": "serverless.yml",
+        "code": "service: fetch-file-and-store-in-s3\n\nframeworkVersion: \">=1.1.0\"\n\ncustom:\n  bucket: <your-bucket-name>\n\nprovider:\n  name: aws\n  runtime: nodejs8.10\n  stage: dev\n  region: us-west-1\n  iamRoleStatements:\n    - Effect: Allow\n      Action:\n        - s3:PutObject\n        - s3:PutObjectAcl\n      Resource: \"arn:aws:s3:::${self:custom.bucket}/*\"\n\nfunctions:\n  save:\n    handler: handler.save\n    environment:\n      BUCKET: ${self:custom.bucket}\n"
+      },
+      "f917b1c4-d4fb-47b1-a877-702b38691549": {
+        "id": "f917b1c4-d4fb-47b1-a877-702b38691549",
+        "parent": "3e79b295-84c6-4991-9494-2f560231b2f9",
+        "name": "package-lock.json",
+        "type": "JSON_FILE",
+        "isDirectory": false,
+        "children": [],
+        "isRemovable": true,
+        "filePath": "fetch-file-and-store-in-s3/package-lock.json",
+        "code": "{\n  \"name\": \"aws-fetch-file-and-store-in-s3\",\n  \"version\": \"1.0.0\",\n  \"lockfileVersion\": 1,\n  \"requires\": true,\n  \"dependencies\": {\n    \"aws-sdk\": {\n      \"version\": \"2.467.0\",\n      \"resolved\": \"https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.467.0.tgz\",\n      \"integrity\": \"sha512-rbVYwpAkoicdgszVClxSkzmoIQwlsrMy/vBoYZesuhUrLOXMefr/mYtpyqkiupCIG9MsqpnYUJYYNlllq4sRPQ==\",\n      \"requires\": {\n        \"buffer\": \"4.9.1\",\n        \"events\": \"1.1.1\",\n        \"ieee754\": \"1.1.8\",\n        \"jmespath\": \"0.15.0\",\n        \"querystring\": \"0.2.0\",\n        \"sax\": \"1.2.1\",\n        \"url\": \"0.10.3\",\n        \"uuid\": \"3.3.2\",\n        \"xml2js\": \"0.4.19\"\n      }\n    },\n    \"base64-js\": {\n      \"version\": \"1.3.0\",\n      \"resolved\": \"https://registry.npmjs.org/base64-js/-/base64-js-1.3.0.tgz\",\n      \"integrity\": \"sha512-ccav/yGvoa80BQDljCxsmmQ3Xvx60/UpBIij5QN21W3wBi/hhIC9OoO+KLpu9IJTS9j4DRVJ3aDDF9cMSoa2lw==\"\n    },\n    \"buffer\": {\n      \"version\": \"4.9.1\",\n      \"resolved\": \"https://registry.npmjs.org/buffer/-/buffer-4.9.1.tgz\",\n      \"integrity\": \"sha1-bRu2AbB6TvztlwlBMgkwJ8lbwpg=\",\n      \"requires\": {\n        \"base64-js\": \"^1.0.2\",\n        \"ieee754\": \"^1.1.4\",\n        \"isarray\": \"^1.0.0\"\n      }\n    },\n    \"events\": {\n      \"version\": \"1.1.1\",\n      \"resolved\": \"https://registry.npmjs.org/events/-/events-1.1.1.tgz\",\n      \"integrity\": \"sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=\"\n    },\n    \"ieee754\": {\n      \"version\": \"1.1.8\",\n      \"resolved\": \"https://registry.npmjs.org/ieee754/-/ieee754-1.1.8.tgz\",\n      \"integrity\": \"sha1-vjPUCsEO8ZJnAfbwii2G+/0a0+Q=\"\n    },\n    \"isarray\": {\n      \"version\": \"1.0.0\",\n      \"resolved\": \"https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz\",\n      \"integrity\": \"sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=\"\n    },\n    \"jmespath\": {\n      \"version\": \"0.15.0\",\n      \"resolved\": \"https://registry.npmjs.org/jmespath/-/jmespath-0.15.0.tgz\",\n      \"integrity\": \"sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=\"\n    },\n    \"punycode\": {\n      \"version\": \"1.3.2\",\n      \"resolved\": \"https://registry.npmjs.org/punycode/-/punycode-1.3.2.tgz\",\n      \"integrity\": \"sha1-llOgNvt8HuQjQvIyXM7v6jkmxI0=\"\n    },\n    \"querystring\": {\n      \"version\": \"0.2.0\",\n      \"resolved\": \"https://registry.npmjs.org/querystring/-/querystring-0.2.0.tgz\",\n      \"integrity\": \"sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=\"\n    },\n    \"sax\": {\n      \"version\": \"1.2.1\",\n      \"resolved\": \"https://registry.npmjs.org/sax/-/sax-1.2.1.tgz\",\n      \"integrity\": \"sha1-e45lYZCyKOgaZq6nSEgNgozS03o=\"\n    },\n    \"url\": {\n      \"version\": \"0.10.3\",\n      \"resolved\": \"https://registry.npmjs.org/url/-/url-0.10.3.tgz\",\n      \"integrity\": \"sha1-Ah5NnHcF8hu/N9A861h2dAJ3TGQ=\",\n      \"requires\": {\n        \"punycode\": \"1.3.2\",\n        \"querystring\": \"0.2.0\"\n      }\n    },\n    \"uuid\": {\n      \"version\": \"3.3.2\",\n      \"resolved\": \"https://registry.npmjs.org/uuid/-/uuid-3.3.2.tgz\",\n      \"integrity\": \"sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==\"\n    },\n    \"xml2js\": {\n      \"version\": \"0.4.19\",\n      \"resolved\": \"https://registry.npmjs.org/xml2js/-/xml2js-0.4.19.tgz\",\n      \"integrity\": \"sha512-esZnJZJOiJR9wWKMyuvSE1y6Dq5LCuJanqhxslH2bxM6duahNZ+HMpCLhBQGZkbX6xRf8x1Y2eJlgt2q3qo49Q==\",\n      \"requires\": {\n        \"sax\": \">=0.6.0\",\n        \"xmlbuilder\": \"~9.0.1\"\n      }\n    },\n    \"xmlbuilder\": {\n      \"version\": \"9.0.7\",\n      \"resolved\": \"https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-9.0.7.tgz\",\n      \"integrity\": \"sha1-Ey7mPS7FVlxVfiD0wi35rKaGsQ0=\"\n    }\n  }\n}\n"
+      },
+      "ec8ad626-60b7-4dc2-93b9-148504920cf2": {
+        "id": "ec8ad626-60b7-4dc2-93b9-148504920cf2",
+        "parent": null,
+        "name": ".gitignore",
+        "type": "TEXT_FILE",
+        "isDirectory": false,
+        "children": [],
+        "isRemovable": true,
+        "filePath": ".gitignore",
+        "code": "node_modules\n.serverless\n"
+      },
+      "6248e293-588e-42ca-8904-25fd2d4bac81": {
+        "id": "6248e293-588e-42ca-8904-25fd2d4bac81",
+        "parent": null,
+        "name": "README.md",
+        "type": "MARKDOWN_FILE",
+        "isDirectory": false,
+        "children": [],
+        "isRemovable": true,
+        "filePath": "README.md",
+        "code": "<!--\ntitle: 'AWS Fetch image from URL and upload to S3 example in NodeJS'\ndescription: 'This example display how to fetch an image from remote source (URL) and then upload this image to a S3 bucket.'\nlayout: Doc\nframework: v1\nplatform: AWS\nlanguage: nodeJS\nauthorLink: 'https://github.com/ScottBrenner'\nauthorName: 'Scott Brenner'\nauthorAvatar: 'https://avatars2.githubusercontent.com/u/416477?v=4&s=140'\n-->\n# Fetch image from URL then upload to s3 Example\n\nThis example display how to fetch an image from remote source (URL) and then upload this image to a S3 bucket.\n\n## Use-cases\n\n- Store a user's profile picture from another service.\n\n## How it works\n\nWe first fetch the data from given url and then call the S3 API `putObject` to upload it to the bucket.\n\n```js\nfetch('image URL')\n  .then(res => {\n    return s3.putObject({Bucket, Key, Body: res.body}).promise();\n  }).then(res => {\n    callback(null, res);\n  }).catch(err => {\n    callback(err, null);\n  });\n```\n\n## Setup\n\nSince this plugin uses the Serverless plugin `serverless-secrets-plugin` you need to setup the `node_modules` by running:\n\n```bash\nnpm install\n```\n\nIn addition you need to create an S3 bucket you want to store the files in. After you created the bucket change the bucket name in `serverless.yml` custom settings to your buckets.\n\n```yml\ncustom:\n  bucket: <your-bucket-name>\n```\n\n## Deploy\n\nIn order to deploy the you endpoint simply run\n\n```bash\nserverless deploy\n```\n\nThe expected result should be similar to:\n\n```bash\nServerless: Creating Stack...\nServerless: Checking Stack create progress...\n.....\nServerless: Stack create finished...\nServerless: Packaging service...\nServerless: Uploading CloudFormation file to S3...\nServerless: Uploading service .zip file to S3 (1.8 KB)...\nServerless: Updating Stack...\nServerless: Checking Stack update progress...\n................\nServerless: Stack update finished...\n\nService Information\nservice: aws-node-fetch-file-and-store-in-s3\nstage: dev\nregion: us-west-1\napi keys:\n  None\nendpoints:\n  None\nfunctions:\n  aws-node-fetch-file-and-store-in-s3-dev-save: arn:aws:lambda:us-west-1:377024778620:function:aws-node-fetch-file-and-store-in-s3-dev-save\n```\n\n## Usage\n\nYou can now send an HTTP request directly to the endpoint using a tool like curl\n\n```bash\nserverless invoke --function save --log --data='{ \"image_url\": \"https://assets-cdn.github.com/images/modules/open_graph/github-mark.png\", \"key\": \"github.png\"}'\n```\n\nThe expected result should be similar to:\n\n```bash\n\"Saved\"\n--------------------------------------------------------------------\nSTART RequestId: c658859d-bd11e6-ac1f-c7a7ee5bd7f3 Version: $LATEST\nEND RequestId: c658859d-bd11e6-ac1f-c7a7ee5bd7f3\nREPORT RequestId: c658859d-bd11e6-ac1f-c7a7ee5bd7f3\tDuration: 436.94 ms\tBilled Duration: 500 ms \tMemory Size: 1024 MB\tMax Memory Used: 29 MB\n```\n\n## Scaling\n\nBy default, AWS Lambda limits the total concurrent executions across all functions within a given region to 100. The default limit is a safety limit that protects you from costs due to potential runaway or recursive functions during initial development and testing. To increase this limit above the default, follow the steps in [To request a limit increase for concurrent executions](http://docs.aws.amazon.com/lambda/latest/dg/concurrent-executions.html#increase-concurrent-executions-limit).\n"
+      },
+      "f5fd2c99-cd0e-4544-92c4-97fedfee5b60": {
+        "id": "f5fd2c99-cd0e-4544-92c4-97fedfee5b60",
+        "parent": null,
+        "name": "package.json",
+        "type": "JSON_FILE",
+        "isDirectory": false,
+        "children": [],
+        "isRemovable": true,
+        "filePath": "package.json",
+        "code": "{\n  \"name\": \"aws-fetch-file-and-store-in-s3\",\n  \"description\": \"Fetch an image from remote source (URL) and then upload the image to a S3 bucket.\",\n  \"version\": \"1.0.0\",\n  \"author\": \"Bozhao Yu\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"aws-sdk\": \"^2.7.9\",\n    \"node-fetch\": \"^1.6.3\"\n  }\n}\n"
+      }
+    },
+    "deletedFiles": [],
+    "rootNode": "3e79b295-84c6-4991-9494-2f560231b2f9",
+    "openFiles": [
+      "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3"
+    ],
+    "currentFileId": "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3",
+    "resources": {
+      "s3indunil1": {
+        "name": "s3indunil1",
+        "type": "S3",
+        "config": {
+          "mode": 1,
+          "bucket": {
+            "region": "us-west-1",
+            "name": "indunil1"
+          }
+        }
+      }
+    },
+    "customTemplate": {
+      "dialect": "CloudFormation",
+      "definitions": {}
+    },
+    "envVariables": [
+      {
+        "lambdaId": "bdb3fa8b-a995-4682-9b9a-e9ec610c0ba3",
+        "varKey": "BUCKET",
+        "varValue": "indunil1",
+        "shouldPersist": true,
+        "displayOnly": false,
+        "editable": true
+      },
+      {
+        "lambdaId": "all",
+        "varKey": "SIGMA_AWS_ACC_ID",
+        "varValue": null,
+        "shouldPersist": false,
+        "displayOnly": false,
+        "editable": false
+      }
+    ],
+    "packageJSON": {
+      "dependencies": {
+        "aws-sdk": {
+          "name": "aws-sdk",
+          "language": "javascript",
+          "version": "^2.7.9"
+        },
+        "node-fetch": {
+          "name": "node-fetch",
+          "language": "javascript",
+          "version": "^1.6.3"
+        }
+      }
+    }
+  },
+  "PROJECT_META": {
+    "projectName": "aws-fetch-file-and-store-in-s3",
+    "projectDescription": "Fetch an image from remote source (URL) and then upload the image to a S3 bucket.",
+    "projectVersion": "1.0.0",
+    "projectRegion": "us-west-1",
+    "platform": "AWS",
+    "platformRegions": {},
+    "lastSave": 1564732312559
+  },
+  "VCS_STATE": {
+    "provider": "GitHub",
+    "repo": {
+      "name": "examples",
+      "url": "https://github.com/HirudineeADRT/s3-fetch",
+      "branches": []
+    }
+  }
+}
