@@ -23,7 +23,7 @@
         "children": [],
         "isRemovable": true,
         "filePath": "fetch-file-and-store-in-s3/handler.js",
-        "code": "'use strict';\n\nconst fetch = require('node-fetch');\nconst AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies\n\nconst s3 = new AWS.S3();\n\nmodule.exports.save = (event, context, callback) => {\n  fetch(event.image_url)\n    .then((response) => {\n      if (response.ok) {\n        return response;\n      }\n      return Promise.reject(new Error(\n        `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));\n    })\n    .then(response => response.buffer())\n    .then((buffer) =>{\n      var image = document.createElement('img');\n    })\n    .then(buffer => (\n      \n      s3.putObject({\n        \"Body\": buffer,\n        \"Bucket\": \"indunil1\",\n        \"Key\": event.key\n      }).promise()\n    ))\n    .then(v => callback(null, v), callback);\n};\n",
+        "code": "'use strict';\n\nconst fetch = require('node-fetch');\nconst AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies\n\nconst s3 = new AWS.S3();\n\nmodule.exports.save = (event, context, callback) => {\n  fetch(event.image_url)\n    .then((response) => {\n      if (response.ok) {\n        return response;\n      }\n      return Promise.reject(new Error(\n        `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));\n    })\n    .then(response => response.buffer())\n    .then((buffer) =>{\n      var image = document.createElement('img');\n      image.src = 'data:image/jpeg;base64,' + buffer.toString('base64')\n    })\n    .then(image => (\n      \n      s3.putObject({\n        \"Body\": image.src,\n        \"Bucket\": \"indunil1\",\n        \"Key\": event.key\n      }).promise()\n    ))\n    .then(v => callback(null, v), callback);\n};\n",
         "config": {
           "runtime": "nodejs8.10",
           "handler": "save",
@@ -216,7 +216,7 @@
     "projectRegion": "us-west-1",
     "platform": "AWS",
     "platformRegions": {},
-    "lastSave": 1564737094006
+    "lastSave": 1564986739566
   },
   "VCS_STATE": {
     "provider": "GitHub",
@@ -226,7 +226,7 @@
       "branches": [
         {
           "name": "master",
-          "hash": "c4d8417a1f9d56dcdcf511865bf3b2f589026602"
+          "hash": "18e40fbe2a7779c0f1e32b7eaa791ec08c2daa4c"
         }
       ]
     }

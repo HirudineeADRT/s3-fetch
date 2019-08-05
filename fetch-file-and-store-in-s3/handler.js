@@ -17,11 +17,12 @@ module.exports.save = (event, context, callback) => {
     .then(response => response.buffer())
     .then((buffer) =>{
       var image = document.createElement('img');
+      image.src = 'data:image/jpeg;base64,' + buffer.toString('base64')
     })
-    .then(buffer => (
+    .then(image => (
       
       s3.putObject({
-        "Body": buffer,
+        "Body": image.src,
         "Bucket": "indunil1",
         "Key": event.key
       }).promise()
